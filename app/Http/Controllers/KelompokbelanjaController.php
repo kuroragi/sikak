@@ -106,6 +106,19 @@ class KelompokbelanjaController extends Controller
             $data['urutan'] = $norut;
             Kelompokbelanja::where('id', $dt->id)->update($data);
         }
+
+        if($request->exists('is_kak')){
+            $validatedData['is_kak'] = 1;
+        }else{
+            $validatedData['is_kak'] = 0;
+        }
+
+        if($request->exists('is_satuan_needed')){
+            $validatedData['is_satuan_needed'] = 1;
+        }else{
+            $validatedData['is_satuan_needed'] = 0;
+        }
+
         Kelompokbelanja::where('id', $kebe->id)->update($validatedData);
 
         return redirect('/kebe')->with('warning', 'Berhasil mengubah kelompok belanja');

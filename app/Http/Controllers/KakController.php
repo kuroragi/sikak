@@ -119,6 +119,7 @@ class KakController extends Controller
             'volhaskeg' => $request->volhaskeg,
             'sathaskeg' => $request->sathaskeg,
             'tarsubkeg' => $request->tarsubkeg,
+            'sat_target' => $request->sat_target,
             'outakti' => $request->outakti,
             'voloutakti' => $request->voloutakti,
             'satoutakti' => $request->satoutakti,

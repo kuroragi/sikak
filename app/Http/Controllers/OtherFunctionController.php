@@ -44,6 +44,18 @@ class OtherFunctionController extends Controller
         return response()->json($data);
     }
 
+    public function getDataAll(Request $request)
+    {
+        $data = DB::table($request->tbl)->get();
+        return response()->json($data);
+    }
+
+    public function getDataLike(Request $request)
+    {
+        $data = DB::table($request->tbl)->where($request->whr, 'Like', '%'.$request->id.'%')->orderBy($request->whr)->get();
+        return response()->json($data);
+    }
+
     public function getSlug(Request $request)
     {
         $slug = STR::slug($request->name, '-');

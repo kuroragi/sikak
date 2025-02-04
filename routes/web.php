@@ -19,7 +19,7 @@ Route::get('/dashboard', 'MainController@dashboard')->middleware('auth');
 Route::post('/login', 'MainController@authenticate')->middleware('guest');
 Route::get('/logout', 'MainController@logout')->middleware('auth');
 
-Route::middleware('hasrole:admin')->group(function () {
+Route::middleware(['auth','hasrole:admin'])->group(function () {
     //Master Data
     Route::resource('/rpjmd', 'PerioderpjmdController');
     Route::resource('/periode', 'PeriodeController');
@@ -56,14 +56,14 @@ Route::middleware('hasrole:admin')->group(function () {
     Route::post('/imskpd', 'SKPDController@import');
 });
 
-Route::middleware('hasrole:admin||kaskpd')->group(function () {
+Route::middleware(['auth', 'hasrole:admin||kaskpd'])->group(function () {
     Route::resource('/user', 'UserController');
     Route::resource('/subunit', 'SubUnitController');
     Route::post('/imsubunit', 'SubUnitController@import');
     Route::resource('/sksu', 'SksuController');
 });
 
-Route::middleware('hasrole:admin||kaskpd||askpd||pengampu')->group(function () {
+Route::middleware(['auth', 'hasrole:admin||kaskpd||askpd||pengampu'])->group(function () {
     Route::get('/changepassword', 'UserController@edit');
     Route::resource('/bidangskpd', 'BidangSkpdController');
     Route::resource('/subunit', 'SubUnitController');
@@ -106,6 +106,8 @@ Route::get('/getdataedit2', 'OtherFunctionController@getDataEdit2');
 Route::get('/getdatawith', 'OtherFunctionController@getDataWith');
 Route::get('/getdatawiths', 'OtherFunctionController@getDataWiths');
 Route::get('/getdata', 'OtherFunctionController@getData');
+Route::get('/getdata_all', 'OtherFunctionController@getDataAll');
+Route::get('/getdata_like', 'OtherFunctionController@getDataLike');
 Route::get('/getslug', 'OtherFunctionController@getSlug');
 Route::get('/getitemedit', 'OtherFunctionController@getItemEdit');
 Route::get('/getitemkeb', 'OtherFunctionController@getItemKeb');

@@ -9,6 +9,7 @@ use App\Kelompokbelanja;
 use App\Lokasi;
 use App\Periode;
 use App\Progbid;
+use App\Satuan;
 use App\SKPD;
 use App\SKPDProg;
 use App\Sksu;
@@ -218,6 +219,7 @@ class SKPDProgController extends Controller
 
         $lokasi = Lokasi::all();
         $kelompokbelanja = Kelompokbelanja::where('status', 1)->orderBy('urutan')->get();
+        $satuans = Satuan::orderBy('satuan')->get();
 
 
         return view('kak.skpdprog.indexkak', [
@@ -227,6 +229,7 @@ class SKPDProgController extends Controller
             'kelompokbelanja' => $kelompokbelanja,
             'subunit' => $subunit,
             'lokasi' => $lokasi,
+            'satuans' => $satuans,
         ]);
     }
 
