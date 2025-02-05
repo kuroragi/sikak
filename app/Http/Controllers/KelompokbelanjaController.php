@@ -64,7 +64,7 @@ class KelompokbelanjaController extends Controller
             $validatedData['is_satuan_needed'] = 0;
         }
 
-        $datakebe = Kelompokbelanja::where('urutan', '>=', $request->urutan)->get();
+        $datakebe = Kelompokbelanja::where('status', 1)->where('urutan', '>=', $request->urutan)->get();
         foreach($datakebe as $dt){
             $data['urutan'] = $dt->urutan + 1;
             Kelompokbelanja::where('id', $dt->id)->update($data);
@@ -136,7 +136,7 @@ class KelompokbelanjaController extends Controller
         
         if($validatedData['urutan'] != 0){
             $norut = 1;
-            $datakebe = Kelompokbelanja::where('urutan', '<', $request->urutan)->get();
+            $datakebe = Kelompokbelanja::where('status', 1)->where('urutan', '<', $request->urutan)->get();
             foreach($datakebe as $dt){
                 $data['urutan'] = $norut;
                 $norut += 1;
@@ -144,14 +144,14 @@ class KelompokbelanjaController extends Controller
             }
     
             $norut = $request->urutan;
-            $datakebe = Kelompokbelanja::where('urutan', '>=', $request->urutan)->get();
+            $datakebe = Kelompokbelanja::where('status', 1)->where('urutan', '>=', $request->urutan)->get();
             foreach($datakebe as $dt){
                 $norut += 1;
                 $data['urutan'] = $norut;
                 Kelompokbelanja::where('id', $dt->id)->update($data);
             }
         }else{
-            $datakebe = Kelompokbelanja::orderBy('urutan')->get();
+            $datakebe = Kelompokbelanja::where('status', 1)->orderBy('urutan')->get();
             foreach($datakebe as $key => $dt){
                 $data['urutan'] = $key + 1;
                 Kelompokbelanja::where('id', $dt->id)->update($data);
@@ -172,5 +172,19 @@ class KelompokbelanjaController extends Controller
     public function destroy(Kelompokbelanja $kelompokbelanja)
     {
         //
+    }
+
+    public function OrderCalibrate() : void {
+        $unactive_kebes = Kelompokbelanja::where('status', 0)->get();
+        foreach($unactive_kebes as $key => $dt){
+            $data['urutan'] = 0;
+            Kelompokbelanja::where('id', $dt->id)->update($data);
+        }
+
+        $active_kebes = Kelompokbelanja::where('status', 1)->orderBy('urutan')->get();
+        foreach($active_kebes as $key => $dt){
+            $data['urutan'] = $key + 1;
+            Kelompokbelanja::where('id', $dt->id)->update($data);
+        }
     }
 }

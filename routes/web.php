@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\KelompokbelanjaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,6 +26,7 @@ Route::middleware(['auth','hasrole:admin'])->group(function () {
     Route::resource('/periode', 'PeriodeController');
     Route::resource('/satuan', 'SatuanController');
     Route::resource('/kebe', 'KelompokbelanjaController');
+    Route::get('/kebe_order_calibrate', [KelompokbelanjaController::class, 'OrderCalibrate'])->name('kebe.order_calibrate');
     Route::resource('/kecamatan', 'KecamatanController');
     Route::resource('/kelurahan', 'KelurahanController');
     Route::resource('/lokasi', 'LokasiController');
