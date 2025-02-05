@@ -29,6 +29,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <table class="table table-striped table-sm" id="tbl">
             <thead>
                 <tr class="text-center">
@@ -61,17 +72,72 @@
                         <td>
                             <button class="badge bg-warning border-0" id="editbutton" data-bs-toggle="modal"
                                 kebe="{{ $k->id }}" data-bs-target="#editmodal"><i class="fa fa-edit"></i></button>
-                            <form action="/kebe/" method="post" class="d-inline">
-                                @method('delete')
-                                @csrf
-                                <button class="badge bg-danger border-0" onclick="return confirm('Are you sure?')"><i
-                                        class="fa fa-circle-xmark"></i></button>
-                            </form>
+                            @if (auth()->user()->role == 'admin')
+                                <form action="/kebe/{{ $k->id }}" method="post" class="d-inline">
+                                    @method('delete')
+                                    @csrf
+                                    <button class="badge bg-danger border-0" onclick="return confirm('Are you sure?')"><i
+                                            class="fa fa-circle-xmark"></i></button>
+                                </form>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+    </div>
+
+    <div class="accordion col-lg-9 mb-5" id="accordionDeleted">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading_soft_delete">
+                <button class="accordion-button collapsed bg-danger text-light" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse_soft_delete" aria-expanded="false" aria-controls="collapseTwo">
+                    Data Kebutuhan Belanja yang tak Aktif
+                </button>
+            </h2>
+            <div class="accordion-collapse collapse p-3" id="collapse_soft_delete" aria-labelledby="heading"
+                data-bs-parent="accordionDeleted">
+                <table class="table table-striped table-sm" id="tbl">
+                    <thead>
+                        <tr class="text-center">
+                            <th scope="col">#</th>
+                            <th scope="col">Kelompok Belanja</th>
+                            <th scope="col">Periode</th>
+                            <th scope="col">KAK</th>
+                            <th scope="col">Dengan Satuan</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        @foreach ($unactive_kebes as $k)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $k->ket }}</td>
+                                <td class="text-center">{{ $k->start_periode ?? 2023 }} -
+                                    {{ $k->end_periode ?? 'sekarang' }}</td>
+                                <td class="text-center"><input type="checkbox"
+                                        @if ($k->is_kak == 1) class="bg-green" checked @endif disabled></td>
+                                <td class="text-center"><input type="checkbox"
+                                        @if ($k->is_satuan_needed == 1) class="bg-green" checked @endif disabled></td>
+                                <td class="text-center">
+                                    @if ($k->status == 1)
+                                        <i class="text-green fa fa-square"></i>
+                                    @else
+                                        <i class="text-red fa fa-square"></i>
+                                    @endif
+                                </td>
+                                <td>
+                                    <button class="badge bg-warning border-0" id="editbutton" data-bs-toggle="modal"
+                                        kebe="{{ $k->id }}" data-bs-target="#editmodal"><i
+                                            class="fa fa-edit"></i></button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Add Data -->
@@ -101,18 +167,63 @@
                                 <div class="mb-3">
                                     <label for="urutan" class="form-label">Urutan</label>
                                     <select name="urutan" class="form-select" id="addurutan">
-                                        @for ($i = 1; $i < 21; $i++)
+                                        @php
+                                            $count_kebe = count($kebe);
+                                        @endphp
+                                        @for ($i = 1; $i <= $count_kebe + 1; $i++)
                                             <option value="{{ $i }}">{{ $i }}</option>
                                         @endfor
                                     </select>
                                 </div>
-                                <div class="mb-3">
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label for="start_periode" class="form-label">Awal Periode</label>
+                                        <select name="start_periode" class="form-select" id="add_startperiode">
+                                            @for ($i = 2023; $i <= date('Y', strtotime(now())); $i++)
+                                                @if (date('Y', strtotime(now())) == $i)
+                                                    <option selected value="{{ $i }}">{{ $i }}
+                                                    </option>
+                                                @else
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endif
+                                            @endfor
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="end_periode" class="form-label">Akhir Periode <a href="javascript:"
+                                                data-bs-toggle="popover" data-bs-trigger="hover"
+                                                data-bs-placement="right" title="Pemilihan AKhir Periode"
+                                                data-bs-content="Jika memilih sekarang berarti kelompok belanja masih aktif, jika memilih yang yang berarti kelompok belanja akan berakhir pada tahun tersebut">
+                                                <i class="fa fa-exclamation-triangle text-warning"></i></a></label>
+                                        <select name="end_periode" class="form-select" id="add_endperiode">
+                                            @for ($i = 2023; $i <= date('Y', strtotime(now())); $i++)
+                                                @if (date('Y', strtotime(now())) == $i)
+                                                    <option selected value="">Sekarang
+                                                    </option>
+                                                @else
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endif
+                                            @endfor
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <label for="is_kak">Berbentuk KAK?</label>
+                                    <input class="form-check-input" name="is_kak" type="checkbox" role="switch"
+                                        id="addiskak">
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <label for="is_satuan_needed">Memiliki Satuan?</label>
+                                    <input class="form-check-input" name="is_satuan_needed" type="checkbox"
+                                        role="switch" id="addissatuanneeded">
+                                </div>
+                                {{-- <div class="mb-3">
                                     <label for="status" class="form-label">Status</label>
                                     <select name="status" class="form-select" id="addstatus">
                                         <option value="1" class="bg-green">Aktif</option>
                                         <option value="0" class="bg-danger">Non Aktif</option>
                                     </select>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                 </div>
@@ -154,10 +265,40 @@
                                 <div class="mb-3">
                                     <label for="urutan" class="form-label">Urutan</label>
                                     <select name="urutan" class="form-select" id="editurutan">
-                                        @for ($i = 1; $i < 21; $i++)
+                                        @php
+                                            $count_kebe = count($kebe);
+                                        @endphp
+                                        @for ($i = 1; $i <= $count_kebe + 1; $i++)
                                             <option value="{{ $i }}">{{ $i }}</option>
                                         @endfor
                                     </select>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label for="start_periode" class="form-label">Awal Periode</label>
+                                        <select name="start_periode" class="form-select" id="edit_startperiode">
+                                            @for ($i = 2023; $i <= date('Y', strtotime(now())); $i++)
+                                                <option value="{{ $i }}">{{ $i }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="end_periode" class="form-label">Akhir Periode <a href="javascript:"
+                                                data-bs-toggle="popover" data-bs-trigger="hover"
+                                                data-bs-placement="right" title="Pemilihan AKhir Periode"
+                                                data-bs-content="Jika memilih sekarang berarti kelompok belanja masih aktif, jika memilih yang yang berarti kelompok belanja akan berakhir pada tahun tersebut">
+                                                <i class="fa fa-exclamation-triangle text-warning"></i></a></label>
+                                        <select name="end_periode" class="form-select" id="edit_endperiode">
+                                            @for ($i = 2023; $i <= date('Y', strtotime(now())); $i++)
+                                                @if (date('Y', strtotime(now())) == $i)
+                                                    <option selected value="">Sekarang
+                                                    </option>
+                                                @else
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endif
+                                            @endfor
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="form-check form-switch mb-3">
                                     <label for="is_kak">Berbentuk KAK?</label>
@@ -169,13 +310,13 @@
                                     <input class="form-check-input" name="is_satuan_needed" type="checkbox"
                                         role="switch" id="editissatuanneeded">
                                 </div>
-                                <div class="mb-3">
+                                {{-- <div class="mb-3">
                                     <label for="status" class="form-label">Status</label>
                                     <select name="status" class="form-select" id="editstatus">
                                         <option value="1" class="bg-green">Aktif</option>
                                         <option value="0" class="bg-danger">Non Aktif</option>
                                     </select>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                 </div>
@@ -188,7 +329,9 @@
         </div>
     </div>
     <!-- End Modal edit -->
+@endsection
 
+@push('js')
     <script>
         $("#addgenbtn").click(function() {
             var name = $("#addname").val();
@@ -221,6 +364,14 @@
                     $("#editform").attr("action", "/kebe/" + id);
                     $("#editket").val(data.ket);
                     $("#editurutan").val(data.urutan).change();
+                    if (data.start_periode == null) {
+                        data.start_periode = 2023;
+                    }
+                    $("#edit_startperiode").val(data.start_periode).change();
+                    if (data.end_periode == null) {
+                        data.end_periode = "";
+                    }
+                    $("#edit_endperiode").val(data.end_periode).change();
                     if (data.is_kak == 1) {
                         $("#editiskak").prop("checked", true);
                         $("#editissatuanneeded").prop("disabled", true);
@@ -238,6 +389,16 @@
             });
         });
 
+        $("#addiskak").change(function() {
+            if ($(this).prop("checked") == true) {
+                $("#addissatuanneeded").prop("checked", false);
+                $("#add_issatuanneeded").val(0);
+                $("#addissatuanneeded").prop("disabled", true);
+            } else {
+                $("#addissatuanneeded").prop("disabled", false);
+            }
+        });
+
         $("#editiskak").change(function() {
             if ($(this).prop("checked") == true) {
                 $("#editissatuanneeded").prop("checked", false);
@@ -248,4 +409,4 @@
             }
         });
     </script>
-@endsection
+@endpush
