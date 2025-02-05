@@ -173,18 +173,4 @@ class KelompokbelanjaController extends Controller
     {
         //
     }
-
-    public function OrderCalibrate() : void {
-        $unactive_kebes = Kelompokbelanja::where('status', 0)->get();
-        foreach($unactive_kebes as $key => $dt){
-            $data['urutan'] = 0;
-            Kelompokbelanja::where('id', $dt->id)->update($data);
-        }
-
-        $active_kebes = Kelompokbelanja::where('status', 1)->orderBy('urutan')->get();
-        foreach($active_kebes as $key => $dt){
-            $data['urutan'] = $key + 1;
-            Kelompokbelanja::where('id', $dt->id)->update($data);
-        }
-    }
 }

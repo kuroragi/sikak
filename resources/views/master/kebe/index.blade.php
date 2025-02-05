@@ -268,7 +268,7 @@
                                         @php
                                             $count_kebe = count($kebe);
                                         @endphp
-                                        @for ($i = 1; $i <= $count_kebe + 1; $i++)
+                                        @for ($i = 1; $i <= $count_kebe; $i++)
                                             <option value="{{ $i }}">{{ $i }}</option>
                                         @endfor
                                     </select>
