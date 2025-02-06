@@ -26,7 +26,7 @@ class AddColumnSattargetAtKakTable extends Migration
     public function down()
     {
         Schema::table('kaks', function (Blueprint $table) {
-            //
+            $table->dropColumn('sat_target');
         });
     }
 }

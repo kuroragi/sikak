@@ -171,7 +171,8 @@
                                             $count_kebe = count($kebe);
                                         @endphp
                                         @for ($i = 1; $i <= $count_kebe + 1; $i++)
-                                            <option value="{{ $i }}">{{ $i }}</option>
+                                            <option @if ($count_kebe + 1 == $i) selected @endif
+                                                value="{{ $i }}">{{ $i }}</option>
                                         @endfor
                                     </select>
                                 </div>
@@ -216,6 +217,11 @@
                                     <label for="is_satuan_needed">Memiliki Satuan?</label>
                                     <input class="form-check-input" name="is_satuan_needed" type="checkbox"
                                         role="switch" id="addissatuanneeded">
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <label for="is_pencetus">Memiliki Pencetus?</label>
+                                    <input class="form-check-input" name="is_pencetus" type="checkbox" role="switch"
+                                        id="add_ispencetus">
                                 </div>
                                 {{-- <div class="mb-3">
                                     <label for="status" class="form-label">Status</label>
@@ -310,6 +316,11 @@
                                     <input class="form-check-input" name="is_satuan_needed" type="checkbox"
                                         role="switch" id="editissatuanneeded">
                                 </div>
+                                <div class="form-check form-switch mb-3">
+                                    <label for="is_pencetus">Memiliki Pencetus?</label>
+                                    <input class="form-check-input" name="is_pencetus" type="checkbox" role="switch"
+                                        id="edit_ispencetus">
+                                </div>
                                 {{-- <div class="mb-3">
                                     <label for="status" class="form-label">Status</label>
                                     <select name="status" class="form-select" id="editstatus">
@@ -383,6 +394,11 @@
                         $("#editissatuanneeded").prop("checked", true);
                     } else {
                         $("#editissatuanneeded").prop("checked", false);
+                    }
+                    if (data.is_pencetus == 1) {
+                        $("#edit_ispencetus").prop("checked", true);
+                    } else {
+                        $("#edit_ispencetus").prop("checked", false);
                     }
                     $("#editstatus").val(data.status).change();
                 }

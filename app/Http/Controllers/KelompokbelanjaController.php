@@ -64,6 +64,12 @@ class KelompokbelanjaController extends Controller
             $validatedData['is_satuan_needed'] = 0;
         }
 
+        if($request->exists('is_pencetus')){
+            $validatedData['is_pencetus'] = 1;
+        }else{
+            $validatedData['is_pencetus'] = 0;
+        }
+
         $datakebe = Kelompokbelanja::where('status', 1)->where('urutan', '>=', $request->urutan)->get();
         foreach($datakebe as $dt){
             $data['urutan'] = $dt->urutan + 1;
@@ -132,6 +138,12 @@ class KelompokbelanjaController extends Controller
             $validatedData['is_satuan_needed'] = 1;
         }else{
             $validatedData['is_satuan_needed'] = 0;
+        }
+
+        if($request->exists('is_pencetus')){
+            $validatedData['is_pencetus'] = 1;
+        }else{
+            $validatedData['is_pencetus'] = 0;
         }
         
         if($validatedData['urutan'] != 0){

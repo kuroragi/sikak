@@ -552,9 +552,7 @@
                 url: "/getdataedit?tbl=kelompokbelanjas&whr=id&id=" + kebe,
                 success: function(data) {
                     if (data.is_kak == 1) {
-                        if (kebe == '7') {
-                            $("#formpencetus").css('display', 'block');
-                        } else if (kebe == '8') {
+                        if (data.is_pencetus == 1) {
                             $("#formpencetus").css('display', 'block');
                         } else {
                             $("#formpencetus").css('display', 'none');
