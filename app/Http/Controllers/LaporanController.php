@@ -26,6 +26,7 @@ use App\Urusan;
 use App\Usulansbu;
 use App\Usulanssh;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -217,6 +218,32 @@ class LaporanController extends Controller
                 }])->where('kode_subkeg', request('kode'))->where('periode', request('periode'))->where('kode_skpd', request('kode_skpd'))->orderBy('kelompokbelanja_id')->get(),
             'periode' => $periode,
             'kelompokbelanja' => Kelompokbelanja::all()
+        ]);
+    }
+
+    public function skpdPerKebe(){
+        if(request('kode_skpd') == ''){
+            $skpd = SKPD::with(['biduruses.progbid.kegprog.subkeg.kak' => function($query){$query->with(['kebutuhanakt'])->where('periode', request('periode'))->where('lokasi', request('lokasi'))->orderBy('kelompokbelanja_id');}])->get();
+        }else{
+            $skpd = SKPD::with(['biduruses.progbid.kegprog.subkeg.kak' => function($query){$query->with(['kebutuhanakt'])->where('periode', request('periode'))->where('lokasi', request('lokasi'))->orderBy('kelompokbelanja_id');}])->where('kode', request('kode_skpd'))->get();
+        }
+
+        $kebes = [];
+
+        if(request('periode') == date('Y', strtotime('+1 year', strtotime(now())))){
+            $kebes = Kelompokbelanja::with(['kak.kebutuhanakt'])->where('end_periode', null)->orderBy('urutan')->get();
+        }else if(request('periode')){
+            $kebes = Kelompokbelanja::with(['kak.kebutuhanakt'])->where(function(Builder $query){$query->where('start_periode', '<=', request('periode'))->where('end_periode', '>=', request('periode'));})->orWhere(function(Builder $query){$query->where('start_periode', '<=', request('periode'))->where('end_periode', null);})->orderBy('urutan')->get();
+        }
+
+        $_periode = Periode::where('periode', request('periode'))->first();
+
+        return view('laporan.skpdperkebe', [
+            'skpd' => $skpd,
+            'kebes' => $kebes,
+            'lokasi' => Lokasi::where('lv', 1)->get(),
+            'periode' => Periode::all(),
+            '_periode' => $_periode
         ]);
     }
 
@@ -1184,5 +1211,44 @@ class LaporanController extends Controller
 
             return $pdf->download('LaporanLokasiSKPD.pdf');
         }
+    }
+
+    public function cetakSkpdPerKebe($id, $periode) {
+        $kebe = Kelompokbelanja::where('id', $id)->first();
+        // $kak = Kak::with(['kebutuhanakt' => fn($query) => $query->where('periode', $periode)])->where('kelompokbelanja_id', $id)->groupBy(['kode_skpd'])->get();
+        $kaks = DB::table('kaks as a')
+                ->selectRaw('a.kode_skpd, a.kelompokbelanja_id, b.kode, b.name, c.total_final as total, c.periode')
+                ->leftJoin('s_k_p_d_s as b', 'a.kode_skpd', 'b.kode')
+                ->leftJoin('kebutuhanakts as c', 'a.kode', 'c.kode_kak')
+                ->groupBy(['a.kode_skpd'])
+                ->where('a.kelompokbelanja_id', $id)
+                // ->where('a.periode', $periode)
+                // ->orderBy('b.kode')
+                ->get();
+        // if ($request->tipe == 'skpd') {
+
+        //     $lokasi = lokasi::where('id', request('lokasi'))->first();
+        //     if($lokasi->lv == 1){
+        //         //
+        //     }else if($lokasi->lv == 2){
+        //         $clokasi = lokasi::where('parent', $lokasi->id)->get();
+        //         $clokasiid = collect([2]);
+        //         foreach($clokasi as $c){
+        //             $clokasiid->push($c->id);
+        //         }
+        //         $skpd = SKPD::with(['kak' => function($query) use ($clokasiid){$query->with(['kebutuhanakt', 'kelompokbelanja'])->where('periode', request('periode'))->whereIn('lokasi', $clokasiid)->orderBy('kelompokbelanja_id');}])->get();
+        //     }else if($lokasi->lv == 3){
+        //         $skpd = SKPD::with(['kak' => function($query){$query->with(['kebutuhanakt', 'kelompokbelanja'])->where('periode', request('periode'))->where('lokasi', request('lokasi'))->orderBy('kelompokbelanja_id');}])->get();
+        //     }
+        //     $kebe = Kelompokbelanja::orderBy('urutan')->get();
+        //     $_periode = Periode::where('periode', request('periode'))->first();
+                        
+            $pdf = FacadePdf::loadView('laporan.cetak_skpd_per_kebe', [ 
+                'kebe' => $kebe,
+                'periode' => $periode,
+                'skpds' => $kaks,
+                'jenis' => 'pdf'])->setPaper('A4', 'landscape');
+
+            return $pdf->download('Laporan SKPD Per Kelompok Belanja TA. '.$periode.'.pdf');
     }
 }

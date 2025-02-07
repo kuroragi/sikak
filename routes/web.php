@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\KelompokbelanjaController;
+use App\Http\Controllers\LaporanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -95,11 +96,13 @@ Route::get('/laporan_program', 'LaporanController@program');
 Route::get('/laporan_kegiatan', 'LaporanController@kegiatan');
 Route::get('/laporan_subkeg', 'LaporanController@subkeg');
 Route::get('/laporan_kak', 'LaporanController@kak');
+Route::get('/laporan_skpd_per_kebe', [LaporanController::class, 'skpdPerKebe'])->name('laporan.skpd_per_kebe');
 Route::get('/ceklaporan', 'LaporanController@cek');
 Route::post('/cetaklaporan', 'LaporanController@cetak');
 Route::post('/cetaksubkeg', 'LaporanController@cetakSubkeg');
 Route::post('/cetakusulan', 'LaporanController@cetakusulan');
 Route::post('/cetaklokasi', 'LaporanController@cetaklokasi');
+Route::get('/cetak_skpd_per_kebe/{id}/{periode}', [LaporanController::class, 'cetakSkpdPerKebe'])->name('cetak.skpd_per_kebe');
 
 //Other Function
 Route::post('/user-edit', 'UserController@editmember');
