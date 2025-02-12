@@ -74,7 +74,9 @@ class MainController extends Controller
         }
 
         if(request('periode')){
-            $list_skpd = SKPD::select(['kode', 'name'])->orderBy('kode')->get();
+            $list_skpd = SKPD::select(['kode', 'name'])->when(auth()->check() && auth()->user()->kode_skpd != '', function($query){
+                $query->where('kode', auth()->user()->kode_skpd);
+            })->orderBy('kode')->get();
             $list_kelompok_belanja = Kelompokbelanja::select(['id', 'ket', 'start_periode', 'end_periode'])->where('start_periode', '<=', $periode->periode)->where(function($query) use ($periode){
                 $query->where('end_periode', '>=', $periode->periode)->orWhere('end_periode', null);
             })->orderBy('urutan')->get();
