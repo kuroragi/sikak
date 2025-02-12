@@ -1469,7 +1469,7 @@
         }
 
         .align-top {
-            vertical-align: top !important;
+            vertical-align: tex-top !important;
         }
 
         .align-middle {
@@ -1565,7 +1565,8 @@
 <body>
     <div
         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2 text-center">Laporan SKPD Per Kelompok Belanja {{ $_kebe->ket }} TA. {{ $periode }}</h1>
+        <h1 class="h2 text-center">Laporan Rekap SKPD Per Kelompok Belanja TA. {{ $periode }}
+        </h1>
         <div class="row "></div>
         <div class="btn-toolbar mb-2 mb-md-0">
         </div>
@@ -1573,35 +1574,28 @@
 
     <table class="table table-striped">
         <thead>
-            <tr class="text-center">
-                <th scope="col">No</th>
-                <th scope="col">SKPD</th>
-                <th scope="col">Total Anggaran</th>
+            <tr class="text-center fs-7">
+                <th scope="col" class="align-top">No</th>
+                <th scope="col" class="align-top">SKPD</th>
+                @foreach ($kebes as $key => $item)
+                    <th scope="col" class="align-top">{{ ucwords($item->ket) }}</th>
+                @endforeach
             </tr>
         </thead>
         <tbody>
             @php
                 $total_all = 0;
             @endphp
-            @foreach ($skpds as $skpd)
-                <tr class="fs-7">
-                    <td class="text-center">{{ $loop->iteration }}</td>
-                    <td>{{ $skpd->name }}</td>
-                    <td class="text-end">
-                        @php
-                            $total_all += $skpd->total;
-                        @endphp
-                        {{ str_replace(',', '.', number_format($skpd->total)) }}
-                    </td>
+            @foreach ($data_rows as $key => $row)
+                <tr class="fs-7" style="padding-bottom: 15px;">
+                    <td class="text-center">{{ $key + 1 }}</td>
+                    <td>{{ $row->skpd_name }}</td>
+                    @foreach ($row->columns as $column)
+                        <td class="text-end">{{ str_replace(',', '.', number_format($column->total_column)) }}</td>
+                    @endforeach
                 </tr>
             @endforeach
         </tbody>
-        <tfoot>
-            <tr>
-                <th class="text-start" colspan="2">Total</th>
-                <th class="text-end">{{ str_replace(',', '.', number_format($total_all)) }}</th>
-            </tr>
-        </tfoot>
     </table>
 
     <div class="page-break"></div>

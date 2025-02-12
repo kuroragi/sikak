@@ -30,7 +30,9 @@
 
 
         @if (request('periode'))
-            <a href="" class="my-3"><button class="btn btn-primary"><i class="fa fa-print"></i> Print Rekap Semua
+            <a href="{{ route('cetak.rekap_skpd_per_kebe', ['periode' => request('periode')]) }}" class="my-3"><button
+                    class="btn btn-primary"><i class="fa fa-print"></i> Print
+                    Rekap Semua
                     Kelompok Belanja
                     {{ strtoupper(request('tipe')) }}</button></a>
             <table class="table table-striped table-sm-9" id="tbl">
@@ -43,23 +45,19 @@
                     </tr>
                 </thead>
                 <tbody id="tbody">
+                    @php
+                        $total = 0;
+                    @endphp
                     @foreach ($kebes as $kebe)
                         @php
-                            $total = 0;
+                            $total += $kebe->total;
                         @endphp
-                        @foreach ($kebe->kak as $kak)
-                            @foreach ($kak->kebutuhanakt as $kebutuhanakt)
-                                @php
-                                    $total += $kebutuhanakt->total_final;
-                                @endphp
-                            @endforeach
-                        @endforeach
                         <tr class="text-align-center">
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $kebe->ket }}</td>
                             <td class="p-0 m-0">Rp.</td>
                             <td class="text-end">
-                                {{ str_replace(',', '.', number_format($total)) }}</td>
+                                {{ str_replace(',', '.', number_format($kebe->total)) }}</td>
                             <td>
                                 <a
                                     href="{{ route('cetak.skpd_per_kebe', ['id' => $kebe->id, 'periode' => $_periode->periode]) }}"><button

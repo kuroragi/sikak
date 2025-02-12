@@ -53,7 +53,16 @@ class Kebutuhanakt extends Model
         return $this->hasMany('App\TahapKak', 'kode_kak', 'kode');
     }
 
+    public function Kak()
+    {
+        return $this->hasMany('App\Kak', 'kode_kak', 'kode');
+    }
+
     public function rekapSsh(){
         //
+    }
+
+    public function scopeRekap_per_skpd($query, $periode){
+        // $query->select('skpd')
     }
 }

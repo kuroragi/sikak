@@ -103,6 +103,7 @@ Route::post('/cetaksubkeg', 'LaporanController@cetakSubkeg');
 Route::post('/cetakusulan', 'LaporanController@cetakusulan');
 Route::post('/cetaklokasi', 'LaporanController@cetaklokasi');
 Route::get('/cetak_skpd_per_kebe/{id}/{periode}', [LaporanController::class, 'cetakSkpdPerKebe'])->name('cetak.skpd_per_kebe');
+Route::get('/cetak_rekap_skpd_per_kebe/{periode}', [LaporanController::class, 'cetak_rekap_skpd_per_kebe'])->name('cetak.rekap_skpd_per_kebe');
 
 //Other Function
 Route::post('/user-edit', 'UserController@editmember');
