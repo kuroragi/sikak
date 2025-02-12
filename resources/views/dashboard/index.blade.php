@@ -13,7 +13,7 @@
                     <div class="card-header text-white bg-info rounded-top">User</div>
                     <div class="card-body bg-primary">
                         <div class="d-flex justify-content-end text-white">
-                            <h1> {{ $user->count() }} <i class="fa fa-user"></i></h1>
+                            <h1> {{ $user }} <i class="fa fa-user"></i></h1>
                         </div>
                         <table class="table table-borderless text-light m-0 p-0">
                             <tr>
@@ -34,7 +34,7 @@
                     <div class="card-header text-white bg-green rounded-top">KAK</div>
                     <div class="card-body bg-success">
                         <div class="d-flex justify-content-end text-white">
-                            <h1> {{ $kak->count() }} <i class="fa fa-file"></i></h1>
+                            <h1> {{ $kak }} <i class="fa fa-file"></i></h1>
                         </div>
                     </div>
                     <div class="card-footer bg-green rounded-bottom text-end text-white">
@@ -55,7 +55,7 @@
                     <div class="card-header text-white bg-green rounded-top">KAK</div>
                     <div class="card-body bg-success">
                         <div class="d-flex justify-content-end text-white">
-                            <h1> {{ $kak->count() }} <i class="fa fa-file"></i></h1>
+                            <h1> {{ $kak }} <i class="fa fa-file"></i></h1>
                         </div>
                     </div>
                     <div class="card-footer bg-green rounded-bottom text-end text-white">
@@ -102,54 +102,30 @@
         <div class="row mt-5">
             <div class="col">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <a href="{{ route('cetak.rekap_skpd_per_kebe', ['periode' => request('periode')]) }}" target="_blank">
+                        <button type="button" class="btn btn-success"><i class="fa fa-print"></i> Cetak</button>
+                    </a>
+                    <table class="table table-striped" id="rekap_table">
                         <thead>
-                            <tr class="text-center fs-8">
-                                <th>#</th>
-                                <th class="text-wrap">SKPD</th>
-                                @foreach ($kebe as $kb)
-                                    <th class="text-wrap w-9" colspan="2">{{ $kb->ket }}</th>
+                            <tr class="text-center fs-7">
+                                <th scope="col" class="align-top">No</th>
+                                <th scope="col" class="align-top">SKPD</th>
+                                @foreach ($kebe_list as $key => $item)
+                                    <th scope="col" class="align-top">{{ ucwords($item->ket) }}</th>
                                 @endforeach
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($skpd as $s)
-                                <tr class="text-align-center fs-8">
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $s->name }}</td>
-                                    @foreach ($kebe as $kb)
-                                        <td class="p-0 m-0">Rp.</td>
+                            @php
+                                $total_all = 0;
+                            @endphp
+                            @foreach ($data_rows as $key => $row)
+                                <tr class="fs-7" style="padding-bottom: 15px;">
+                                    <td class="text-center">{{ $key + 1 }}</td>
+                                    <td>{{ $row->skpd_name }}</td>
+                                    @foreach ($row->columns as $column)
                                         <td class="text-end">
-                                            @php
-                                                $total = 0;
-                                            @endphp
-                                            @foreach ($s->biduruses as $bi)
-                                                @foreach ($bi->progbid as $p)
-                                                    @foreach ($p->kegprog as $kp)
-                                                        @foreach ($kp->subkeg as $sk)
-                                                            @foreach ($sk->kak as $k)
-                                                                @if ($kb->id == $k->kelompokbelanja_id)
-                                                                    @php
-                                                                        foreach ($k->kebutuhanakt as $keb) {
-                                                                            if ($_periode->sesi == 'rka') {
-                                                                                $total += $keb->total_rka;
-                                                                            } elseif ($_periode->sesi == 'kuappas') {
-                                                                                $total += $keb->total_kuappas;
-                                                                            } elseif ($_periode->sesi == 'apbd') {
-                                                                                $total += $keb->total_apbd;
-                                                                            } elseif ($_periode->sesi == 'final') {
-                                                                                $total += $keb->total_final;
-                                                                            }
-                                                                        }
-                                                                    @endphp
-                                                                @endif
-                                                            @endforeach
-                                                        @endforeach
-                                                    @endforeach
-                                                @endforeach
-                                            @endforeach
-                                            {{ str_replace(',', '.', number_format($total)) }}
-                                        </td>
+                                            {{ str_replace(',', '.', number_format($column->total_column)) }}</td>
                                     @endforeach
                                 </tr>
                             @endforeach
@@ -212,4 +188,10 @@
 @push('js')
     <script src="/js/chart.js"></script>
     <script src="/js/dashboard.js"></script>
+
+    //
+    <script>
+        //     new DataTable('#rekap_table');
+        // 
+    </script>
 @endpush
